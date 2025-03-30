@@ -1,47 +1,61 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <div class="container">
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+    <div class="control">
+      <button v-on:click="toggleSelect" >select</button>
+      <button v-on:click="console.log(instance)">print</button>
     </div>
-  </header>
 
-  <main>
-    <TheWelcome />
-  </main>
+    <div class="layer-panel" v-if="instance != null">
+      <LayerPanel v-bind:instance= instance></LayerPanel>
+    </div>
+
+    <canvas ref="canvas">
+    </canvas>
+    
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
+<style lang="css" scoped>
+  canvas {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .container {
+    flex-direction: row;
     display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
   }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
+  .control {
+    flex-direction: column;
     display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
   }
-}
+  .layer{
+    display: flex;
+    flex-direction: row;
+  }
 </style>
+
+<script lang="ts" setup>
+  import type { ArisLayer } from './ArisDrawJS/components/Layer';
+  import { ArisDraw } from './ArisDrawJS/main';
+  import LayerPanel from './components/LayerPanel.vue'
+  import { defineComponent, ref, type InputHTMLAttributes } from 'vue';
+
+</script>
+
+<script lang="ts">
+  const instance = ref<ArisDraw>()
+  let selectable: boolean = true
+  const toggleSelect = ()=>{
+    instance.value!.canvas.isDrawingMode = selectable
+    selectable = !selectable
+  }
+
+
+  export default defineComponent({
+    mounted(){
+      instance.value = new ArisDraw(this.$refs.canvas as HTMLCanvasElement,{width : innerWidth * 0.9, height : innerHeight})
+      instance.value.run()
+    },
+  })
+</script>
